@@ -14,17 +14,6 @@ O sistema monitora o nível de preenchimento de uma lixeira utilizando um sensor
 
 As informações são transmitidas via protocolo MQTT para o Node-RED, onde são apresentadas em um dashboard de monitoramento em tempo real.
 
-## Dashboard
-
-![Dashboard](imagens/dashboard.png
-
-## Fluxo Node-RED
-
-![Node-RED](imagens/node_red_flow.png)
-
-## Protótipo
-
-![Protótipo](imagens/montagem_prototipo.jpg)
 
 ## Tecnologias Utilizadas
 
