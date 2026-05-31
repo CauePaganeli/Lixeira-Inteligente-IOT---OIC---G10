@@ -1,0 +1,380 @@
+[
+    {
+        "id": "bb087744eb5130e2",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d79514a4a73bef07",
+        "type": "mqtt in",
+        "z": "bb087744eb5130e2",
+        "name": "Recebe nível da lixeira",
+        "topic": "grupo10/lixeira/nivel",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "6c981e82ebeec639",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 160,
+        "y": 160,
+        "wires": [
+            [
+                "6d61c556869dd2fa",
+                "6a1302536d140f93"
+            ]
+        ]
+    },
+    {
+        "id": "6d61c556869dd2fa",
+        "type": "debug",
+        "z": "bb087744eb5130e2",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 340,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "3b7a217e03c644ea",
+        "type": "mqtt out",
+        "z": "bb087744eb5130e2",
+        "name": "Envia teste MQTT",
+        "topic": "grupo10/lixeira/nivel",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "6c981e82ebeec639",
+        "x": 770,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "171cb79598433f0a",
+        "type": "inject",
+        "z": "bb087744eb5130e2",
+        "name": "Teste MQTT",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"distancia_cm\":15.5,\"status\":\"PARCIAL\"}",
+        "payloadType": "str",
+        "x": 550,
+        "y": 220,
+        "wires": [
+            [
+                "3b7a217e03c644ea"
+            ]
+        ]
+    },
+    {
+        "id": "6a1302536d140f93",
+        "type": "json",
+        "z": "bb087744eb5130e2",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 210,
+        "y": 400,
+        "wires": [
+            [
+                "5378e9fde2f273c8",
+                "d5e93496d6d7ad36",
+                "c9e2a28a4796beb2"
+            ]
+        ]
+    },
+    {
+        "id": "1c06dec1b5a428ef",
+        "type": "ui_gauge",
+        "z": "bb087744eb5130e2",
+        "name": "",
+        "group": "bc5c3b2c08b48c0e",
+        "order": 0,
+        "width": "5",
+        "height": "4",
+        "gtype": "gage",
+        "title": "Nível de preenchimento",
+        "label": "%",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "45",
+        "seg2": "75",
+        "diff": false,
+        "className": "",
+        "x": 710,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "5378e9fde2f273c8",
+        "type": "function",
+        "z": "bb087744eb5130e2",
+        "name": "Extrai percentual",
+        "func": "let distancia = msg.payload.distancia_cm;\n\nlet alturaMaxima = 45; // cm\nlet percentual = ((alturaMaxima - distancia) / alturaMaxima) * 100;\n\nif (percentual < 0) percentual = 0;\nif (percentual > 100) percentual = 100;\n\nmsg.payload = Math.round(percentual);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 400,
+        "wires": [
+            [
+                "1c06dec1b5a428ef",
+                "aeaa5d89ee223c05"
+            ]
+        ]
+    },
+    {
+        "id": "d5e93496d6d7ad36",
+        "type": "function",
+        "z": "bb087744eb5130e2",
+        "name": "Extrai Status",
+        "func": "let distancia = msg.payload.distancia_cm;\nlet alturaMaxima = 45;\n\nlet percentual = ((alturaMaxima - distancia) / alturaMaxima) * 100;\n\nif (percentual < 0) percentual = 0;\nif (percentual > 100) percentual = 100;\n\nif (percentual < 45) {\n    msg.payload = \"🟢 VAZIA\";\n}\nelse if (percentual < 75) {\n    msg.payload = \"🟡 PARCIAL\";\n}\nelse {\n    msg.payload = \"🔴 CHEIA\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 460,
+        "wires": [
+            [
+                "cea2aa2589fc85d7"
+            ]
+        ]
+    },
+    {
+        "id": "cea2aa2589fc85d7",
+        "type": "ui_text",
+        "z": "bb087744eb5130e2",
+        "group": "27a75da0f668b1d9",
+        "order": 0,
+        "width": "4",
+        "height": "2",
+        "name": "",
+        "label": "Status da Lixeira",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 710,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "aeaa5d89ee223c05",
+        "type": "ui_chart",
+        "z": "bb087744eb5130e2",
+        "name": "Histórico do Nível",
+        "group": "93e18daa64b36fb6",
+        "order": 0,
+        "width": "6",
+        "height": "5",
+        "label": "Histórico do nível",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "100",
+        "removeOlder": "10",
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 730,
+        "y": 600,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1c84d3d20aef0595",
+        "type": "ui_text",
+        "z": "bb087744eb5130e2",
+        "group": "ca85fe48692f6a61",
+        "order": 0,
+        "width": "6",
+        "height": "5",
+        "name": "",
+        "label": "Última atualização",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 730,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "c9e2a28a4796beb2",
+        "type": "function",
+        "z": "bb087744eb5130e2",
+        "name": "Última Atualização",
+        "func": "let agora = new Date();\n\nmsg.payload = agora.toLocaleString(\"pt-BR\", {\n    day: \"2-digit\",\n    month: \"2-digit\",\n    year: \"numeric\",\n    hour: \"2-digit\",\n    minute: \"2-digit\",\n    second: \"2-digit\"\n});\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 520,
+        "wires": [
+            [
+                "1c84d3d20aef0595"
+            ]
+        ]
+    },
+    {
+        "id": "6c981e82ebeec639",
+        "type": "mqtt-broker",
+        "name": "HiveMQ Broker",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "grupo10-node-red",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "bc5c3b2c08b48c0e",
+        "type": "ui_group",
+        "name": "Nível de preenchimento",
+        "tab": "7447da37e36bf5b9",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "27a75da0f668b1d9",
+        "type": "ui_group",
+        "name": "Status da Lixeira",
+        "tab": "7447da37e36bf5b9",
+        "order": 2,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "93e18daa64b36fb6",
+        "type": "ui_group",
+        "name": "Gráfico",
+        "tab": "7447da37e36bf5b9",
+        "order": 5,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "ca85fe48692f6a61",
+        "type": "ui_group",
+        "name": "Última atualização",
+        "tab": "7447da37e36bf5b9",
+        "order": 4,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "7447da37e36bf5b9",
+        "type": "ui_tab",
+        "name": "Lixeira IoT",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "6b10beab440b2ae9",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
